@@ -38,7 +38,7 @@ function initParams (uri, options, callback) {
   params.callback = callback || params.callback
   return params
 }
-
+// NOTE: true entry point
 function request (uri, options, callback) {
   if (typeof uri === 'undefined') {
     throw new Error('undefined is not a valid uri or options object.')
@@ -49,7 +49,7 @@ function request (uri, options, callback) {
   if (params.method === 'HEAD' && paramsHaveRequestBody(params)) {
     throw new Error('HTTP HEAD requests MUST NOT include a request body.')
   }
-
+  // NOTE: enters `request.js`
   return new request.Request(params)
 }
 
@@ -80,6 +80,7 @@ request.cookie = function (str) {
   return cookies.parse(str)
 }
 
+// NOTE: Entry point
 function wrapRequestMethod (method, options, requester, verb) {
   return function (uri, opts, callback) {
     var params = initParams(uri, opts, callback)

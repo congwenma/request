@@ -91,6 +91,7 @@ function responseToJSON () {
   }
 }
 
+// NOTE: entry point
 function Request (options) {
   // if given the method property in options, set property explicitMethod to true
 
@@ -107,10 +108,13 @@ function Request (options) {
     options = self._har.options(options)
   }
 
+  // NOTE: what is this for?! `for some reason it removed request.js` - what did?
   stream.Stream.call(self)
   var reserved = Object.keys(Request.prototype)
   var nonReserved = filterForNonReserved(reserved, options)
 
+  // NOTE: allow these to be on the current object,
+  //  [ "timeout", "headers", "gzip", "proxy", "method", "url", "resolveWithFullResponse", "callback" ]
   extend(self, nonReserved)
   options = filterOutReservedFunctions(reserved, options)
 
@@ -278,8 +282,10 @@ Request.prototype.init = function (options) {
     self.proxy = getProxyFromURI(self.uri)
   }
 
+  // NOTE: setups tunnel when detecing proxy
   self.tunnel = self._tunnel.isEnabled()
   if (self.proxy) {
+    // NOTE: mainly parses and updates self.proxy
     self._tunnel.setup(options)
   }
 
@@ -301,6 +307,7 @@ Request.prototype.init = function (options) {
     if (self.uri.protocol === 'http:') { self.uri.port = 80 } else if (self.uri.protocol === 'https:') { self.uri.port = 443 }
   }
 
+  // NOTE: only updates the current requests `port and host` if not tunneling and has proxy, in our case api is `https` so by logic, tunnel is on.
   if (self.proxy && !self.tunnel) {
     self.port = self.proxy.port
     self.host = self.proxy.hostname
@@ -389,6 +396,7 @@ Request.prototype.init = function (options) {
     self.auth(uriAuthPieces[0], uriAuthPieces.slice(1).join(':'), true)
   }
 
+  // NOTE: skipped reading complex shit, not applicable to our cause, basically setting proxy-authroization header.
   if (!self.tunnel && self.proxy && self.proxy.auth && !self.hasHeader('proxy-authorization')) {
     var proxyAuthPieces = self.proxy.auth.split(':').map(function (item) { return self._qs.unescape(item) })
     var authHeader = 'Basic ' + toBase64(proxyAuthPieces.join(':'))
@@ -745,6 +753,7 @@ Request.prototype.start = function () {
   delete reqOptions.timeout
 
   try {
+    // NOTE: invokes https.request
     self.req = self.httpModule.request(reqOptions)
   } catch (err) {
     self.emit('error', err)
